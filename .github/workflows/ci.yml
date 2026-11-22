@@ -13,6 +13,7 @@ permissions:
   contents: read
 
 jobs:
+  # Job 1: Run API tests
   test:
     name: Run API Tests
     runs-on: ubuntu-latest
@@ -33,6 +34,7 @@ jobs:
       - name: Run tests
         run: npm test
 
+  # Job 2: Build and push Docker image
   docker:
     name: Build and Push Docker Image
     needs: test
@@ -62,6 +64,7 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/task-management-api:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/task-management-api:${{ github.sha }}
 
+  # Job 3: Deploy application to AWS EKS
   deploy:
     name: Deploy to EKS
     needs: docker
@@ -91,12 +94,8 @@ jobs:
           fi
 
           echo "GitHub OIDC token request is available"
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
-          aws-region: ap-south-1
-            - name: Inspect OIDC claims safely
+
+      - name: Inspect OIDC claims safely
         shell: bash
         run: |
           OIDC_JWT=$(curl -sS \
@@ -115,7 +114,14 @@ jobs:
               "aud": claims.get("aud"),
               "sub": claims.get("sub")
           }, indent=2))
-          '    
+          '
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+          aws-region: ap-south-1
+
       - name: Setup kubectl
         uses: azure/setup-kubectl@v4
         with:
@@ -126,6 +132,7 @@ jobs:
           aws eks update-kubeconfig \
             --region ap-south-1 \
             --name task-api-cluster
+
       - name: Apply Kubernetes manifests
         run: |
           kubectl apply -f k8s/
