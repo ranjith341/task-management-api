@@ -1,6 +1,6 @@
 resource "aws_eks_access_entry" "cluster_admin" {
   cluster_name  = aws_eks_cluster.main.name
-  principal_arn = "YOUR_IAM_USER_ARN"
+  principal_arn = "arn:aws:iam::137671771271:user/Ranjith"
   type          = "STANDARD"
 }
 

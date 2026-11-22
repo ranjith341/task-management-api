@@ -1,7 +1,7 @@
 resource "aws_eks_cluster" "main" {
   name     = "task-api-cluster"
   role_arn = aws_iam_role.eks_cluster.arn
-  version  = "1.33"
+  version  = "1.37"
 
   vpc_config {
     subnet_ids = [
@@ -11,6 +11,8 @@ resource "aws_eks_cluster" "main" {
 
     endpoint_private_access = true
     endpoint_public_access  = true
+
+    public_access_cidrs = ["0.0.0.0/0"]
   }
 
   depends_on = [
@@ -53,8 +55,8 @@ resource "aws_eks_node_group" "main" {
 
   depends_on = [
     aws_iam_role_policy_attachment.eks_worker_node,
-    aws_iam_role_policy_attachment.eks_ecr_pull,
-    aws_iam_role_policy_attachment.eks_cni
+    aws_iam_role_policy_attachment.eks_cni,
+    aws_iam_role_policy_attachment.eks_ecr_pull
   ]
 
   tags = {
