@@ -10,7 +10,7 @@ app.use(morgan("combined"));
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "UP",
-    message: "Task Management API is running",
+    message: "Task Management API is running on EKs",
   });
 });
 
