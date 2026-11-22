@@ -83,6 +83,14 @@ jobs:
           echo "Event: $GITHUB_EVENT_NAME"
           echo "Actor: $GITHUB_ACTOR"
 
+      - name: Verify GitHub OIDC token availability
+        run: |
+          if [ -z "$ACTIONS_ID_TOKEN_REQUEST_URL" ] || [ -z "$ACTIONS_ID_TOKEN_REQUEST_TOKEN" ]; then
+            echo "GitHub OIDC token request is not available"
+            exit 1
+          fi
+
+          echo "GitHub OIDC token request is available"
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
